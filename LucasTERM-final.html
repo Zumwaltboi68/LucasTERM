@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LucasTerm - Advanced Terminal Emulator</title>
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #greeting {
+            color: lightgreen;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #terminal {
+            border: 2px solid green;
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+        }
+        #input {
+            color: green;
+            width: 100%;
+            background-color: black;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+        }
+        .warning {
+            color: yellow;
+        }
+        .danger {
+            color: red;
+        }
+        .banner {
+            color: lightgreen;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="greeting">Welcome Lucas Kim, Type help to see a list of available commands to type</div>
+    <div id="terminal"></div>
+    <input type="text" id="input" autocomplete="off" autofocus>
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        const prompt = "LucasTerm> ";
+
+        let history = [];
+        let currentIndex = 0;
+        let defconLevel = 5;
+        let operations = [];
+
+        function printToTerminal(text, className = '') {
+            const span = document.createElement("span");
+            if (className) span.className = className;
+            span.textContent = text + "\n";
+            terminal.appendChild(span);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function printBanner() {
+            const bannerText = `
+=========================================
+||                                     ||
+||       WELCOME TO LucasTERM          ||
+||    Secure Military Server           ||
+||                                     ||
+=========================================`;
+            printToTerminal(bannerText, 'banner');
+        }
+
+        function processCommand(command) {
+            command = command.trim().toLowerCase();
+            const args = command.split(" ");
+            const baseCommand = args[0];
+            const target = args[1];
+
+            switch(baseCommand) {
+                case "help":
+                    printToTerminal("Available commands:\n- airstrike [target]\n- nuke [target]\n- status\n- abort [operation]\n- defcon [level]\n- satellite [target]\n- launchcode\n- weather [target]\n- satcom [message]\n- systemstatus\n- clear\n- exit\n- whoami");
+                    break;
+                case "clear":
+                    terminal.innerHTML = "";
+                    printBanner();
+                    break;
+                case "exit":
+                    printToTerminal("Exiting LucasTerm...");
+                    setTimeout(() => window.close(), 1000);
+                    break;
+                case "whoami":
+                    printToTerminal("Lucas Kim");
+                    break;
+                case "airstrike":
+                    if(target) {
+                        operations.push(`Airstrike on ${target}`);
+                        printToTerminal(`Commencing pre-flight checks for airstrike on ${target}...`);
+                        setTimeout(() => {
+                            printToTerminal(`- Verifying target coordinates...`);
+                            setTimeout(() => {
+                                printToTerminal(`- Coordinates verified. Target locked.`);
+                                setTimeout(() => {
+                                    printToTerminal(`- Engaging weapons systems...`);
+                                    setTimeout(() => {
+                                        printToTerminal(`- Systems ready. Deploying airstrike...`, 'warning');
+                                        setTimeout(() => {
+                                            printToTerminal(`- Airstrike on ${target} completed. Target neutralized.`, 'warning');
+                                            operations = operations.filter(op => op !== `Airstrike on ${target}`);
+                                        }, 4000);
+                                    }, 3000);
+                                }, 2000);
+                            }, 1500);
+                        }, 2000);
+                    } else {
+                        printToTerminal("Specify a target for the airstrike.");
+                    }
+                    break;
+                case "nuke":
+                    if(target) {
+                        operations.push(`Nuclear missile on ${target}`);
+                        printToTerminal(`Commencing nuclear missile launch sequence for ${target}...`);
+                        setTimeout(() => {
+                            printToTerminal(`- Initiating warhead arming procedures...`);
+                            setTimeout(() => {
+                                printToTerminal(`- Warhead armed. Conducting final system checks...`);
+                                setTimeout(() => {
+                                    printToTerminal(`- All systems operational. Preparing for missile launch.`);
+                                    setTimeout(() => {
+                                        printToTerminal(`- Launching nuclear missile in 3...2...1...`, 'danger');
+                                        setTimeout(() => {
+                                            printToTerminal(`- Missile launched. Tracking target...`, 'danger');
+                                            setTimeout(() => {
+                                                printToTerminal(`- Impact confirmed on ${target}.`, 'danger');
+                                                printToTerminal("Massive destruction detected. Fallout imminent.", 'danger');
+                                                operations = operations.filter(op => op !== `Nuclear missile on ${target}`);
+                                            }, 5000);
+                                        }, 4000);
+                                    }, 3000);
+                                }, 2000);
+                            }, 1500);
+                        }, 2000);
+                    } else {
+                        printToTerminal("Specify a target for the nuclear missile.");
+                    }
+                    break;
+                case "status":
+                    if(operations.length > 0) {
+                        printToTerminal("Ongoing operations:");
+                        operations.forEach(op => printToTerminal(`- ${op}`));
+                    } else {
+                        printToTerminal("No ongoing operations.");
+                    }
+                    break;
+                case "abort":
+                    if(target && (operations.includes(`Airstrike on ${target}`) || operations.includes(`Nuclear missile on ${target}`))) {
+                        operations = operations.filter(op => op !== `Airstrike on ${target}` && op !== `Nuclear missile on ${target}`);
+                        printToTerminal(`${target} operation aborted successfully.`);
+                    } else {
+                        printToTerminal("No such operation to abort.");
+                    }
+                    break;
+                case "defcon":
+                    if(target && !isNaN(target) && target >= 1 && target <= 5) {
+                        defconLevel = target;
+                        printToTerminal(`DEFCON level set to ${defconLevel}.`, defconLevel == 1 ? 'danger' : defconLevel <= 3 ? 'warning' : '');
+                        simulateDefconChange(defconLevel);
+                    } else {
+                        printToTerminal("Specify a DEFCON level between 1 and 5.");
+                    }
+                    break;
+                case "satellite":
+                    if (target) {
+                        printToTerminal(`Commencing satellite data acquisition for ${target}...`);
+                        setTimeout(() => {
+                            printToTerminal(`- Establishing communication with satellite network...`);
+                            setTimeout(() => {
+                                printToTerminal(`- Satellite communication established. Retrieving data...`);
+                                fetchWeatherData(target);
+                            }, 3000);
+                        }, 2000);
+                    } else {
+                        printToTerminal("Specify a target location for satellite data.");
+                    }
+                    break;
+                case "launchcode":
+                    printToTerminal("Initializing launch code sequence...");
+                    setTimeout(() => {
+                        printToTerminal("Authentication required. Please enter your launch code:");
+                        input.disabled = true;
+                        setTimeout(() => {
+                            input.disabled = false;
+                            input.focus();
+                            printToTerminal("Launch code accepted. Preparing to launch missile...");
+                            setTimeout(() => {
+                                printToTerminal("Finalizing launch procedures...");
+                                setTimeout(() => {
+                                    printToTerminal("Missile launched. Awaiting impact...");
+                                    setTimeout(() => {
+                                        printToTerminal("Missile impact confirmed. Target destroyed.", 'danger');
+                                    }, 5000);
+                                }, 3000);
+                            }, 3000);
+                        }, 2000);
+                    }, 2000);
+                    break;
+                case "weather":
+                    if(target) {
+                        printToTerminal(`Fetching weather data for ${target}...`);
+                        setTimeout(() => {
+                            printToTerminal(`- Gathering atmospheric readings...`);
+                            setTimeout(() => {
+                                printToTerminal(`- Analyzing weather patterns...`);
+                                setTimeout(() => {
+                                    printToTerminal(`Weather for ${target}: Clear skies, 25°C, winds at 10 km/h.`);
+                                    printToTerminal("Conditions optimal for operation.");
+                                }, 3000);
+                            }, 2500);
+                        }, 2500);
+                    } else {
+                        printToTerminal("Specify a target for weather data.");
+                    }
+                    break;
+                case "satcom":
+                    const message = args.slice(1).join(" ");
+                    if(message) {
+                        printToTerminal(`Encrypting message: "${message}"...`);
+                        setTimeout(() => {
+                            printToTerminal("- Message encryption complete.");
+                            setTimeout(() => {
+                                printToTerminal("Transmitting message via satellite...");
+                                setTimeout(() => {
+                                    printToTerminal("Message delivered securely.", 'warning');
+                                }, 3000);
+                            }, 3000);
+                        }, 2000);
+                    } else {
+                        printToTerminal("Specify a message to send via satellite.");
+                    }
+                    break;
+case "systemstatus":
+                    printToTerminal("Performing system status check...");
+                    setTimeout(() => {
+                        printToTerminal("- Checking CPU load...");
+                        setTimeout(() => {
+                            printToTerminal(`- CPU Load: ${Math.floor(Math.random() * 40) + 10}%`);
+                            setTimeout(() => {
+                                printToTerminal("- Checking memory usage...");
+                                setTimeout(() => {
+                                    printToTerminal(`- Memory Usage: ${Math.floor(Math.random() * 40) + 20}%`);
+                                    setTimeout(() => {
+                                        printToTerminal("- Checking disk space...");
+                                        setTimeout(() => {
+                                            printToTerminal(`- Disk Space: ${Math.floor(Math.random() * 60) + 30}% used`);
+                                            setTimeout(() => {
+                                                printToTerminal("- Checking network status...");
+                                                setTimeout(() => {
+                                                    printToTerminal(`- Network Status: ${Math.random() > 0.2 ? 'Stable' : 'Intermittent'}`);
+                                                    setTimeout(() => {
+                                                        printToTerminal("- Checking power supply...");
+                                                        setTimeout(() => {
+                                                            printToTerminal(`- Power Supply: ${Math.random() > 0.1 ? 'Nominal' : 'Low Voltage Detected'}`, 'warning');
+                                                            setTimeout(() => {
+                                                                printToTerminal("System check complete. All systems operational.");
+                                                            }, 2000);
+                                                        }, 2000);
+                                                    }, 2000);
+                                                }, 2000);
+                                            }, 2000);
+                                        }, 2000);
+                                    }, 2000);
+                                }, 2000);
+                            }, 2000);
+                        }, 2000);
+                    }, 2000);
+                    break;
+                default:
+                    printToTerminal(`Unknown command: ${command}`);
+            }
+        }
+
+        function simulateDefconChange(level) {
+            if (level == 1) {
+                printToTerminal("WARNING: DEFCON 1 activated. Maximum military readiness. Nuclear forces ready to launch.", 'danger');
+                setTimeout(() => {
+                    printToTerminal("All stations report in. Awaiting further instructions.", 'danger');
+                }, 3000);
+            } else if (level <= 3) {
+                printToTerminal("Alert: DEFCON level reduced. Increased military readiness.", 'warning');
+            } else {
+                printToTerminal("DEFCON level nominal. Standard military readiness.");
+            }
+        }
+
+        function fetchWeatherData(target) {
+            setTimeout(() => {
+                printToTerminal(`- Data received. Scanning weather systems over ${target}...`);
+                setTimeout(() => {
+                    printToTerminal(`- Weather analysis complete. Forecast for ${target}:`);
+                    printToTerminal(`   Clear skies, 22°C, wind speed at 15 km/h.`);
+                    printToTerminal(`   No adverse weather conditions detected.`);
+                }, 3000);
+            }, 3000);
+        }
+
+        input.addEventListener('keydown', function(event) {
+            if (event.key === "Enter") {
+                const command = input.value.trim();
+                if (command) {
+                    history.push(command);
+                    currentIndex = history.length;
+                    printToTerminal(prompt + command);
+                    processCommand(command);
+                }
+                input.value = "";
+            } else if (event.key === "ArrowUp") {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    input.value = history[currentIndex];
+                }
+            } else if (event.key === "ArrowDown") {
+                if (currentIndex < history.length - 1) {
+                    currentIndex++;
+                    input.value = history[currentIndex];
+                } else {
+                    input.value = "";
+                    currentIndex = history.length;
+                }
+            }
+        });
+
+        printBanner();
+        printToTerminal(prompt);
+    </script>
+</body>
+</html>
